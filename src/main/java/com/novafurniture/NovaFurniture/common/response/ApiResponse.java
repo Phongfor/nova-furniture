@@ -1,4 +1,4 @@
-package com.novafurniture.NovaFurniture.dto.response;
+package com.novafurniture.NovaFurniture.common.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

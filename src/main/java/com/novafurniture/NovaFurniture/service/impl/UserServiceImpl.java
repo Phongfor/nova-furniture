@@ -1,6 +1,8 @@
 package com.novafurniture.NovaFurniture.service.impl;
 
 import com.novafurniture.NovaFurniture.entity.User;
+import com.novafurniture.NovaFurniture.exception.AppException;
+import com.novafurniture.NovaFurniture.exception.ErrorCode;
 import com.novafurniture.NovaFurniture.repository.UserRepository;
 import com.novafurniture.NovaFurniture.service.UserService;
 import lombok.AccessLevel;
@@ -29,6 +31,6 @@ public class UserServiceImpl implements UserService {
     public User getUserById(Long id) {
         log.info("Fetching user with id: {}", id);
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
     }
 }
