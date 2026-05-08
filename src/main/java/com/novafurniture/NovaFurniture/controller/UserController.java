@@ -1,5 +1,6 @@
 package com.novafurniture.NovaFurniture.controller;
 
+import com.novafurniture.NovaFurniture.common.response.ApiResponse;
 import com.novafurniture.NovaFurniture.entity.User;
 import com.novafurniture.NovaFurniture.service.UserService;
 import lombok.AccessLevel;
@@ -19,12 +20,18 @@ public class UserController {
     UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ApiResponse<List<User>> getAllUsers() {
+        return ApiResponse.<List<User>>builder()
+                .result(userService.getAllUsers())
+                .message("Success")
+                .build();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    public ApiResponse<User> getUserById(@PathVariable Long id) {
+        return ApiResponse.<User>builder()
+                .result(userService.getUserById(id))
+                .message("Success")
+                .build();
     }
 }
