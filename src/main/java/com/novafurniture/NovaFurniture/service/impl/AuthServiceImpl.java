@@ -1,8 +1,10 @@
 package com.novafurniture.NovaFurniture.service.impl;
 
 import com.novafurniture.NovaFurniture.dto.request.LoginRequest;
+import com.novafurniture.NovaFurniture.dto.request.RefreshTokenRequest;
 import com.novafurniture.NovaFurniture.dto.request.RegisterRequest;
 import com.novafurniture.NovaFurniture.dto.response.AuthResponse;
+import com.novafurniture.NovaFurniture.dto.response.UserResponse;
 import com.novafurniture.NovaFurniture.entity.User;
 import com.novafurniture.NovaFurniture.enums.Role;
 import com.novafurniture.NovaFurniture.exception.AppException;
@@ -68,6 +70,66 @@ public class AuthServiceImpl implements AuthService {
         return AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .build();
+    }
+
+    @Override
+    public AuthResponse refreshToken(RefreshTokenRequest request) {
+        String refreshToken = request.getRefreshToken();
+
+        // Validate refresh token
+        if (!jwtUtil.isTokenValid(refreshToken)) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+
+        // Lấy email từ refresh token
+        String email = jwtUtil.extractEmail(refreshToken);
+
+        // Kiểm tra user tồn tại không
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // Tạo access token mới
+        String newAccessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getRole().name());
+
+        log.info("Token refreshed for user: {}", email);
+
+        return AuthResponse.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(refreshToken)  // giữ nguyên refresh token cũ
+                .build();
+    }
+
+    @Override
+    public void logout(String accessToken) {
+        if (!jwtUtil.isTokenValid(accessToken)) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+        // Sau này sẽ thêm blacklist token vào Redis
+        log.info("User logged out");
+    }
+
+    @Override
+    public UserResponse getMe(String accessToken) {
+        if (!jwtUtil.isTokenValid(accessToken)) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+
+        String email = jwtUtil.extractEmail(accessToken);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .fullname(user.getFullname())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .avatar(user.getAvatar())
+                .birthday(user.getBirthday())
+                .role(user.getRole())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 }
