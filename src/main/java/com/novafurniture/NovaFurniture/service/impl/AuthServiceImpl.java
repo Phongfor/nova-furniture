@@ -28,32 +28,24 @@ public class AuthServiceImpl implements AuthService {
     JwtUtil jwtUtil;
 
     @Override
-    public AuthResponse register(RegisterRequest request) {
-        // Kiểm tra email đã tồn tại chưa
+    public void register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
         }
 
-        // Tạo user mới
         User user = User.builder()
                 .fullname(request.getFullname())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .phone(request.getPhone())
+                .address(request.getAddress())
+                .birthday(request.getBirthday())
                 .role(Role.USER)
                 .enabled(true)
                 .build();
 
         userRepository.save(user);
         log.info("User registered: {}", user.getEmail());
-
-        // Tạo token
-        String accessToken = jwtUtil.generateAccessToken(user.getEmail());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
-
-        return AuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
     }
 
     @Override
@@ -70,7 +62,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("User logged in: {}", user.getEmail());
 
         // Tạo token
-        String accessToken = jwtUtil.generateAccessToken(user.getEmail());
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getRole().name());
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
         return AuthResponse.builder()

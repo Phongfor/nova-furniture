@@ -20,10 +20,10 @@ public class AuthController {
     AuthService authService;
 
     @PostMapping("/register")
-    public ApiResponse<AuthResponse> register(@RequestBody @Valid RegisterRequest request) {
-        return ApiResponse.<AuthResponse>builder()
-                .result(authService.register(request))
-                .message("Register successfully")
+    public ApiResponse<Void> register(@RequestBody @Valid RegisterRequest request) {
+        authService.register(request);
+        return ApiResponse.<Void>builder()
+                .message("Register successfully. Please login.")
                 .build();
     }
 
