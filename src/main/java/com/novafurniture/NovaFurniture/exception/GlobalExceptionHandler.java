@@ -3,6 +3,7 @@ package com.novafurniture.NovaFurniture.exception;
 import com.novafurniture.NovaFurniture.common.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -24,7 +25,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
-        log.error("Unexpected error: {}", e.getMessage());
+        log.error("Unexpected error: ", e);
         ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
         return ResponseEntity
                 .status(errorCode.getStatusCode())
@@ -32,5 +33,25 @@ public class GlobalExceptionHandler {
                         .code(errorCode.getCode())
                         .message(errorCode.getMessage())
                         .build());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Void>> handleValidationException(
+            MethodArgumentNotValidException e) {
+        String message = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .findFirst()
+                .orElse("Validation error");
+
+        log.error("Validation error: {}", message);
+
+        return ResponseEntity.badRequest().body(
+                ApiResponse.<Void>builder()
+                        .code(1003)
+                        .message(message)
+                        .build()
+        );
     }
 }
