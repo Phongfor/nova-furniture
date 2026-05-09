@@ -2,6 +2,7 @@ package com.novafurniture.NovaFurniture.controller;
 
 import com.novafurniture.NovaFurniture.common.response.ApiResponse;
 import com.novafurniture.NovaFurniture.dto.request.LoginRequest;
+import com.novafurniture.NovaFurniture.dto.request.OAuth2TokenRequest;
 import com.novafurniture.NovaFurniture.dto.request.RefreshTokenRequest;
 import com.novafurniture.NovaFurniture.dto.request.RegisterRequest;
 import com.novafurniture.NovaFurniture.dto.response.AuthResponse;
@@ -34,6 +35,15 @@ public class AuthController {
         return ApiResponse.<AuthResponse>builder()
                 .result(authService.login(request))
                 .message("Login successfully")
+                .build();
+    }
+
+    @PostMapping("/oauth2/token")
+    public ApiResponse<AuthResponse> exchangeOAuth2Code(
+            @RequestBody @Valid OAuth2TokenRequest request) {
+        return ApiResponse.<AuthResponse>builder()
+                .result(authService.exchangeOAuth2Code(request))
+                .message("Token exchanged successfully")
                 .build();
     }
 
