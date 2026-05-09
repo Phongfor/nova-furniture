@@ -28,9 +28,10 @@ public class JwtUtil {
     }
 
     // Tạo Access Token
-    public String generateAccessToken(String email) {
+    public String generateAccessToken(String email,String role) {
         return Jwts.builder()
                 .subject(email)
+                .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
                 .signWith(getSigningKey())
@@ -58,6 +59,10 @@ public class JwtUtil {
     // Lấy email từ token
     public String extractEmail(String token) {
         return extractClaims(token).getSubject();
+    }
+
+    public String extractRole(String token) {
+        return extractClaims(token).get("role", String.class);
     }
 
     // Kiểm tra token còn hạn không
