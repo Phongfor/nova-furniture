@@ -1,6 +1,7 @@
 package com.novafurniture.NovaFurniture.service.impl;
 
 import com.novafurniture.NovaFurniture.dto.request.LoginRequest;
+import com.novafurniture.NovaFurniture.dto.request.OAuth2TokenRequest;
 import com.novafurniture.NovaFurniture.dto.request.RefreshTokenRequest;
 import com.novafurniture.NovaFurniture.dto.request.RegisterRequest;
 import com.novafurniture.NovaFurniture.dto.response.AuthResponse;
@@ -11,6 +12,7 @@ import com.novafurniture.NovaFurniture.exception.AppException;
 import com.novafurniture.NovaFurniture.exception.ErrorCode;
 import com.novafurniture.NovaFurniture.repository.UserRepository;
 import com.novafurniture.NovaFurniture.service.AuthService;
+import com.novafurniture.NovaFurniture.service.RedisService;
 import com.novafurniture.NovaFurniture.util.JwtUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ public class AuthServiceImpl implements AuthService {
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
     JwtUtil jwtUtil;
+    RedisService redisService;
 
     @Override
     public void register(RegisterRequest request) {
@@ -130,6 +133,32 @@ public class AuthServiceImpl implements AuthService {
                 .birthday(user.getBirthday())
                 .role(user.getRole())
                 .createdAt(user.getCreatedAt())
+                .build();
+    }
+
+    @Override
+    public AuthResponse exchangeOAuth2Code(OAuth2TokenRequest request) {
+        String code = request.getCode();
+        String key  = "oauth2:code:" + code;
+
+        // Kiểm tra code tồn tại trong Redis
+        if (!redisService.hasKey(key)) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+
+        // Lấy token từ Redis
+        String value = redisService.get(key);
+
+        // Xóa code khỏi Redis — chỉ dùng 1 lần
+        redisService.delete(key);
+
+        String[] tokens = value.split("\\|");
+        String accessToken  = tokens[0];
+        String refreshToken = tokens[1];
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 }

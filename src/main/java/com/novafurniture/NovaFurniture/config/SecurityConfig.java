@@ -1,6 +1,7 @@
 package com.novafurniture.NovaFurniture.config;
 
 import com.novafurniture.NovaFurniture.config.JwtFilter;
+import com.novafurniture.NovaFurniture.security.OAuth2SuccessHandler;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -28,6 +29,7 @@ public class SecurityConfig {
 
     JwtFilter jwtFilter;
     UserDetailsService userDetailsService;
+    OAuth2SuccessHandler oAuth2SuccessHandler;
 
     private static final String[] PUBLIC_ENDPOINTS = {
             "/api/v1/auth/**",
@@ -35,6 +37,8 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/api-docs/**",
             "/v3/api-docs/**",
+            "/oauth2/**",
+            "/login/oauth2/**",
     };
 
     @Bean
@@ -48,11 +52,13 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // OAuth2 cần session
                 )
                 .authenticationProvider(authenticationProvider())
-                // Thêm JwtFilter trước UsernamePasswordAuthenticationFilter
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2SuccessHandler)
+                );
 
         return http.build();
     }
