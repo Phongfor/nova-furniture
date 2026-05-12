@@ -11,118 +11,91 @@ Mục tiêu: Java Backend Intern/Fresher Portfolio 2026.
 - Spring Boot 3.4.5
 - Spring Security + JWT (jjwt 0.12.6)
 - Spring Data JPA + Hibernate
-- PostgreSQL 16 (chạy qua Docker)
+- PostgreSQL 16 (Docker)
 - Flyway (migration)
+- Redis (Docker)
 - Lombok
 - MapStruct 1.6.3
 - Swagger / OpenAPI (springdoc 2.8.8)
-- Redis — chưa implement
+- Google OAuth2
 
 ---
 
-## Cấu trúc project
+## Package Structure
 src/main/java/com/novafurniture/NovaFurniture/
-├── common/
-│   └── response/ApiResponse.java
+├── common/response/ApiResponse.java
 ├── config/
-│   └── SecurityConfig.java
+│   ├── AppConfig.java
+│   ├── CorsConfig.java
+│   ├── RedisConfig.java
+│   ├── SecurityConfig.java
+│   └── SwaggerConfig.java
 ├── controller/
 │   ├── AuthController.java
+│   ├── BrandController.java
+│   ├── CategoryController.java
+│   ├── ProductController.java
 │   └── UserController.java
 ├── dto/
 │   ├── request/
+│   │   ├── BrandRequest.java
+│   │   ├── CategoryRequest.java
 │   │   ├── LoginRequest.java
+│   │   ├── OAuth2TokenRequest.java
+│   │   ├── ProductRequest.java
+│   │   ├── RefreshTokenRequest.java
 │   │   └── RegisterRequest.java
 │   └── response/
 │       ├── AuthResponse.java
+│       ├── BrandResponse.java
+│       ├── CategoryResponse.java
+│       ├── PageResponse.java
+│       ├── ProductResponse.java
 │       └── UserResponse.java
 ├── entity/
+│   ├── Brand.java
+│   ├── Category.java
+│   ├── Product.java
 │   └── User.java
 ├── enums/
-│   └── Role.java
+│   └── Role.java (USER, ADMIN, STAFF)
 ├── exception/
 │   ├── AppException.java
 │   ├── ErrorCode.java
 │   └── GlobalExceptionHandler.java
 ├── repository/
+│   ├── BrandRepository.java
+│   ├── CategoryRepository.java
+│   ├── ProductRepository.java
 │   └── UserRepository.java
 ├── security/
 │   ├── CustomUserDetailsService.java
-│   └── JwtFilter.java
+│   ├── JwtFilter.java
+│   └── OAuth2SuccessHandler.java
 ├── service/
 │   ├── AuthService.java
+│   ├── BrandService.java
+│   ├── CategoryService.java
+│   ├── ProductService.java
+│   ├── RedisService.java
 │   ├── UserService.java
 │   └── impl/
 │       ├── AuthServiceImpl.java
+│       ├── BrandServiceImpl.java
+│       ├── CategoryServiceImpl.java
+│       ├── ProductServiceImpl.java
 │       └── UserServiceImpl.java
 ├── util/
 │   └── JwtUtil.java
-├── validator/
 └── NovaFurnitureApplication.java
-src/main/resources/
-├── db/migration/
-│   └── V1__init_schema.sql
-└── application.yaml
 
 ---
 
-## application.yaml hiện tại
-```yaml
-spring:
-  application:
-    name: nova-furniture
-  datasource:
-    url: jdbc:postgresql://localhost:5432/nova_furniture
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    open-in-view: false
-    hibernate:
-      ddl-auto: validate
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
-server:
-  port: 8080
-jwt:
-  secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-  access-token-expiration: 900000
-  refresh-token-expiration: 604800000
-springdoc:
-  swagger-ui:
-    path: /swagger-ui/index.html
-  api-docs:
-    path: /api-docs
-```
-
----
-
-## Docker
-- `docker-compose.yml` ở root project
-- Chỉ có PostgreSQL (Redis chưa thêm)
-- Chạy: `docker compose up -d`
-- Dừng: `docker compose down`
-- Container: `nova_postgres`
-
----
-
-## Git Flow
-- `main`     ← code setup ban đầu
-- `develop`  ← code đang phát triển
-- `feature/` ← từng tính năng
-
-Quy trình:
-1. `git checkout develop && git pull origin develop`
-2. `git checkout -b feature/ten-tinh-nang`
-3. Code xong: `git add . && git commit -m "feat: ..." && git push`
-4. Tạo Pull Request trên GitHub merge vào `develop`
+## Flyway Migrations
+- V1__init_schema.sql — bảng users
+- V2__create_categories_table.sql — bảng categories
+- V3__create_brands_table.sql — bảng brands
+- V4__create_products_table.sql — bảng products
 
 ---
 
@@ -135,74 +108,99 @@ UNAUTHORIZED(1202)            — 403
 INVALID_CREDENTIALS(1203)     — 401
 INVALID_TOKEN(1204)           — 401
 PRODUCT_NOT_FOUND(2001)       — 404
+CATEGORY_NOT_FOUND(2002)      — 404
+BRAND_NOT_FOUND(2003)         — 404
+CATEGORY_HAS_CHILDREN(2004)   — 400
 ORDER_NOT_FOUND(3001)         — 404
 
 ---
 
 ## API hiện tại
-POST /api/v1/auth/register   — đăng ký (public)
-POST /api/v1/auth/login      — đăng nhập (public)
-GET  /api/v1/users           — lấy tất cả users (cần token)
-GET  /api/v1/users/{id}      — lấy user theo id (cần token)
+Auth
+POST /api/v1/auth/register
+POST /api/v1/auth/login
+POST /api/v1/auth/refresh
+POST /api/v1/auth/logout
+GET  /api/v1/auth/me
+POST /api/v1/auth/oauth2/token
+GET  /oauth2/authorization/google
+User
+GET  /api/v1/users
+GET  /api/v1/users/{id}
+Category
+GET    /api/v1/categories
+GET    /api/v1/categories/{id}
+POST   /api/v1/categories
+PUT    /api/v1/categories/{id}
+DELETE /api/v1/categories/{id}
+Brand
+GET    /api/v1/brands
+GET    /api/v1/brands/{id}
+POST   /api/v1/brands
+PUT    /api/v1/brands/{id}
+DELETE /api/v1/brands/{id}
+Product
+GET    /api/v1/products
+GET    /api/v1/products/{id}
+GET    /api/v1/products/slug/{slug}
+POST   /api/v1/products
+PUT    /api/v1/products/{id}
+DELETE /api/v1/products/{id}
 
 ---
 
-## Security Config
-- Public: `/api/v1/auth/**`, `/swagger-ui/**`, `/api-docs/**`, `/v3/api-docs/**`
-- Còn lại: cần Bearer Token
-- Stateless, BCrypt password encoder
+## Docker
+- PostgreSQL: nova_postgres (port 5432)
+- Redis: nova_redis (port 6379)
+- Chạy: `docker compose up -d`
+- Dừng: `docker compose down`
 
 ---
 
-## Flyway Migration
-- V1__init_schema.sql — tạo bảng `users`
+## Git Flow
+- `main` ← code setup ban đầu
+- `develop` ← code đang phát triển
+- `feature/` ← từng tính năng
 
 ---
 
 ## Trạng thái hiện tại
-- [x] Tạo project Spring Boot 3.4.5
-- [x] Sửa pom.xml (đúng dependencies)
-- [x] Tạo application.yaml
-- [x] Tạo docker-compose.yml (PostgreSQL)
-- [x] Tạo Dockerfile
-- [x] Tạo V1__init_schema.sql
-- [x] App chạy được, kết nối PostgreSQL thành công
-- [x] Entity User + Role enum
-- [x] UserRepository
-- [x] UserService + UserServiceImpl
-- [x] UserController
-- [x] ApiResponse wrapper
-- [x] Exception Handling + Validation Handler
-- [x] Security Config
+- [x] Project setup
+- [x] Docker (PostgreSQL + Redis)
+- [x] Flyway Migration (V1-V4)
+- [x] Exception Handling + Validation
+- [x] Security Config + CORS + Swagger
 - [x] JWT (JwtUtil, JwtFilter, CustomUserDetailsService)
-- [x] AuthService + AuthController (register, login)
-- [x] UserResponse DTO (ẩn password)
-- [ ] Refresh Token
-- [ ] Redis Cache + JWT Blacklist
-- [ ] Product Module
-- [ ] Category + Brand Module
-- [ ] Cart + Order Module
+- [x] Auth Module (register, login, refresh, logout, me, Google OAuth2)
+- [x] User Module
+- [x] Category Module
+- [x] Brand Module
+- [x] Product Module (CRUD, pagination, filter, search)
+- [x] Redis (one-time code cho Google OAuth2)
+- [ ] Cart Module
+- [ ] Order Module
 - [ ] Payment Module
 - [ ] Review + Wishlist
 - [ ] Admin Dashboard
+- [ ] Redis Cache cho Product
+- [ ] Role-based Authorization
 
 ---
 
 ## Roadmap tiếp theo
-Bước 11: Refresh Token
-Bước 12: Product Module
-Bước 13: Category + Brand
-Bước 14: Cart + Order
-Bước 15: Redis Cache
-Bước 16: Payment
-Bước 17: Review + Wishlist
-Bước 18: Admin Dashboard
+Bước 1-12: Done ✅
+Bước 13: Cart Module
+Bước 14: Order Module
+Bước 15: Payment Module
+Bước 16: Review + Wishlist
+Bước 17: Redis Cache
+Bước 18: Role-based Authorization
+Bước 19: Admin Dashboard
 
 ---
 
 ## Quy tắc làm việc
 - Đi từng bước nhỏ, xong bước nào confirm rồi mới qua bước tiếp
-- IDE: IntelliJ IDEA
-- OS: Windows
-- Test API bằng Postman và Swagger UI
+- IDE: IntelliJ IDEA — OS: Windows
+- Test API bằng Swagger UI + Postman
 - Mỗi feature tạo nhánh riêng, merge vào develop qua Pull Request

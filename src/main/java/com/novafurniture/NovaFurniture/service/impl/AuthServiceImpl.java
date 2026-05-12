@@ -99,7 +99,7 @@ public class AuthServiceImpl implements AuthService {
 
         return AuthResponse.builder()
                 .accessToken(newAccessToken)
-                .refreshToken(refreshToken)  // giữ nguyên refresh token cũ
+                .refreshToken(refreshToken)
                 .build();
     }
 

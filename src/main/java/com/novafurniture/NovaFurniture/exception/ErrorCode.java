@@ -22,6 +22,9 @@ public enum ErrorCode {
 
     // PRODUCT MODULE
     PRODUCT_NOT_FOUND(2001, "Product not found", HttpStatus.NOT_FOUND),
+    CATEGORY_NOT_FOUND(2002, "Category not found", HttpStatus.NOT_FOUND),
+    BRAND_NOT_FOUND(2003, "Brand not found", HttpStatus.NOT_FOUND),
+    CATEGORY_HAS_CHILDREN(2004, "Cannot delete category that has sub-categories", HttpStatus.BAD_REQUEST),
 
     // ORDER MODULE
     ORDER_NOT_FOUND(3001, "Order not found", HttpStatus.NOT_FOUND);
