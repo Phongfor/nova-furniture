@@ -32,7 +32,9 @@ public enum ErrorCode {
     INSUFFICIENT_STOCK(4003, "Insufficient stock", HttpStatus.BAD_REQUEST),
 
     // ORDER MODULE
-    ORDER_NOT_FOUND(3001, "Order not found", HttpStatus.NOT_FOUND);
+    ORDER_NOT_FOUND(3001, "Order not found", HttpStatus.NOT_FOUND),
+    CART_EMPTY(4004,"Cart is empty", HttpStatus.BAD_REQUEST),
+    ORDER_CANNOT_CANCEL(3002,"Only PENDING orders can be cancelled", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
