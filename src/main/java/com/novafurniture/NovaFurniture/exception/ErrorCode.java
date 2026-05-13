@@ -34,7 +34,15 @@ public enum ErrorCode {
     // ORDER MODULE
     ORDER_NOT_FOUND(3001, "Order not found", HttpStatus.NOT_FOUND),
     CART_EMPTY(4004,"Cart is empty", HttpStatus.BAD_REQUEST),
-    ORDER_CANNOT_CANCEL(3002,"Only PENDING orders can be cancelled", HttpStatus.BAD_REQUEST);
+    ORDER_CANNOT_CANCEL(3002,"Only PENDING orders can be cancelled", HttpStatus.BAD_REQUEST),
+
+    // WISHLIST MODULE
+    REVIEW_NOT_FOUND(5001, "Review not found", HttpStatus.NOT_FOUND),
+    REVIEW_ALREADY_EXISTS(5002, "You already reviewed this product", HttpStatus.CONFLICT),
+    REVIEW_NOT_PURCHASED(5003, "You must purchase this product before reviewing", HttpStatus.BAD_REQUEST),
+
+    // REVIEW MODULE
+    WISHLIST_ITEM_NOT_FOUND(5004, "Wishlist item not found", HttpStatus.NOT_FOUND);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
