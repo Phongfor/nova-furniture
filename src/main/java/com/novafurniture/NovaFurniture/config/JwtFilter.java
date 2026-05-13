@@ -57,17 +57,18 @@ public class JwtFilter extends OncePerRequestFilter {
         // Lấy email từ token
         String email = jwtUtil.extractEmail(token);
 
+
         // Nếu chưa có authentication trong context
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             if (jwtUtil.isTokenValid(token)) {
-                String role = jwtUtil.extractRole(token);
-
-                List<SimpleGrantedAuthority> authorities = List.of(
-                        new SimpleGrantedAuthority("ROLE_" + role)
-                );
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
                 UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(email, null, authorities);
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
