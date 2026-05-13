@@ -27,64 +27,104 @@ src/main/java/com/novafurniture/NovaFurniture/
 ├── config/
 │   ├── AppConfig.java
 │   ├── CorsConfig.java
+│   ├── CustomUserDetails.java
+│   ├── CustomUserDetailsService.java
+│   ├── JwtFilter.java
 │   ├── RedisConfig.java
 │   ├── SecurityConfig.java
 │   └── SwaggerConfig.java
 ├── controller/
 │   ├── AuthController.java
 │   ├── BrandController.java
+│   ├── CartController.java
 │   ├── CategoryController.java
+│   ├── OrderController.java
 │   ├── ProductController.java
-│   └── UserController.java
+│   ├── ReviewController.java
+│   ├── UserController.java
+│   └── WishlistController.java
 ├── dto/
 │   ├── request/
+│   │   ├── AddToCartRequest.java
 │   │   ├── BrandRequest.java
 │   │   ├── CategoryRequest.java
 │   │   ├── LoginRequest.java
 │   │   ├── OAuth2TokenRequest.java
+│   │   ├── PlaceOrderRequest.java
 │   │   ├── ProductRequest.java
 │   │   ├── RefreshTokenRequest.java
-│   │   └── RegisterRequest.java
+│   │   ├── RegisterRequest.java
+│   │   ├── ReviewRequest.java
+│   │   ├── UpdateCartItemRequest.java
+│   │   ├── UpdateOrderStatusRequest.java
+│   │   └── UpdateReviewRequest.java
 │   └── response/
 │       ├── AuthResponse.java
 │       ├── BrandResponse.java
+│       ├── CartItemResponse.java
+│       ├── CartResponse.java
 │       ├── CategoryResponse.java
+│       ├── OrderItemResponse.java
+│       ├── OrderResponse.java
 │       ├── PageResponse.java
 │       ├── ProductResponse.java
-│       └── UserResponse.java
+│       ├── ReviewResponse.java
+│       ├── UserResponse.java
+│       └── WishlistItemResponse.java
 ├── entity/
 │   ├── Brand.java
+│   ├── CartItem.java
 │   ├── Category.java
+│   ├── Order.java
+│   ├── OrderItem.java
 │   ├── Product.java
-│   └── User.java
+│   ├── Review.java
+│   ├── User.java
+│   └── WishlistItem.java
 ├── enums/
+│   ├── OrderStatus.java (PENDING, CONFIRMED, SHIPPING, DELIVERED, CANCELLED)
 │   └── Role.java (USER, ADMIN, STAFF)
 ├── exception/
 │   ├── AppException.java
 │   ├── ErrorCode.java
 │   └── GlobalExceptionHandler.java
+├── mapper/
+│   ├── CartItemMapper.java
+│   ├── OrderMapper.java
+│   ├── ReviewMapper.java
+│   └── WishlistMapper.java
 ├── repository/
 │   ├── BrandRepository.java
+│   ├── CartItemRepository.java
 │   ├── CategoryRepository.java
+│   ├── OrderRepository.java
 │   ├── ProductRepository.java
-│   └── UserRepository.java
+│   ├── ReviewRepository.java
+│   ├── UserRepository.java
+│   └── WishlistRepository.java
 ├── security/
-│   ├── CustomUserDetailsService.java
-│   ├── JwtFilter.java
 │   └── OAuth2SuccessHandler.java
 ├── service/
 │   ├── AuthService.java
 │   ├── BrandService.java
+│   ├── CartService.java
 │   ├── CategoryService.java
+│   ├── OrderService.java
 │   ├── ProductService.java
 │   ├── RedisService.java
+│   ├── ReviewService.java
 │   ├── UserService.java
+│   ├── WishlistService.java
 │   └── impl/
 │       ├── AuthServiceImpl.java
 │       ├── BrandServiceImpl.java
+│       ├── CartServiceImpl.java
 │       ├── CategoryServiceImpl.java
+│       ├── OrderServiceImpl.java
 │       ├── ProductServiceImpl.java
-│       └── UserServiceImpl.java
+│       ├── ReviewServiceImpl.java
+│       ├── UserServiceImpl.java
+│       └── WishlistServiceImpl.java
 ├── util/
 │   └── JwtUtil.java
 └── NovaFurnitureApplication.java
@@ -96,6 +136,9 @@ src/main/java/com/novafurniture/NovaFurniture/
 - V2__create_categories_table.sql — bảng categories
 - V3__create_brands_table.sql — bảng brands
 - V4__create_products_table.sql — bảng products
+- V5__create_cart_items_table.sql — bảng cart_items
+- V6__create_orders_table.sql — bảng orders + order_items
+- V7__create_reviews_wishlist_table.sql — bảng reviews + wishlist_items
 
 ---
 
@@ -112,6 +155,15 @@ CATEGORY_NOT_FOUND(2002)      — 404
 BRAND_NOT_FOUND(2003)         — 404
 CATEGORY_HAS_CHILDREN(2004)   — 400
 ORDER_NOT_FOUND(3001)         — 404
+ORDER_CANNOT_CANCEL(3002)     — 400
+CART_ITEM_NOT_FOUND(4001)     — 404
+CART_ITEM_ALREADY_EXISTS(4002)— 409
+INSUFFICIENT_STOCK(4003)      — 400
+CART_EMPTY(4004)              — 400
+REVIEW_NOT_FOUND(5001)        — 404
+REVIEW_ALREADY_EXISTS(5002)   — 409
+REVIEW_NOT_PURCHASED(5003)    — 400
+WISHLIST_ITEM_NOT_FOUND(5004) — 404
 
 ---
 
@@ -124,28 +176,51 @@ POST /api/v1/auth/logout
 GET  /api/v1/auth/me
 POST /api/v1/auth/oauth2/token
 GET  /oauth2/authorization/google
+
 User
 GET  /api/v1/users
 GET  /api/v1/users/{id}
+
 Category
-GET    /api/v1/categories
-GET    /api/v1/categories/{id}
-POST   /api/v1/categories
-PUT    /api/v1/categories/{id}
-DELETE /api/v1/categories/{id}
+GET/POST/PUT/DELETE /api/v1/categories
+GET /api/v1/categories/{id}
+
 Brand
-GET    /api/v1/brands
-GET    /api/v1/brands/{id}
-POST   /api/v1/brands
-PUT    /api/v1/brands/{id}
-DELETE /api/v1/brands/{id}
+GET/POST/PUT/DELETE /api/v1/brands
+GET /api/v1/brands/{id}
+
 Product
-GET    /api/v1/products
-GET    /api/v1/products/{id}
-GET    /api/v1/products/slug/{slug}
-POST   /api/v1/products
-PUT    /api/v1/products/{id}
-DELETE /api/v1/products/{id}
+GET/POST/PUT/DELETE /api/v1/products
+GET /api/v1/products/{id}
+GET /api/v1/products/slug/{slug}
+
+Cart
+GET    /api/v1/cart
+POST   /api/v1/cart/items
+PUT    /api/v1/cart/items/{cartItemId}
+DELETE /api/v1/cart/items/{cartItemId}
+DELETE /api/v1/cart
+
+Order
+POST   /api/v1/orders
+GET    /api/v1/orders/my
+GET    /api/v1/orders/{orderId}
+PATCH  /api/v1/orders/{orderId}/cancel
+GET    /api/v1/orders                    [ADMIN]
+PATCH  /api/v1/orders/{orderId}/status   [ADMIN]
+
+Review
+GET    /api/v1/reviews/product/{productId}
+GET    /api/v1/reviews/product/{productId}/rating
+GET    /api/v1/reviews/my
+POST   /api/v1/reviews
+PATCH  /api/v1/reviews/{reviewId}
+DELETE /api/v1/reviews/{reviewId}
+
+Wishlist
+GET    /api/v1/wishlist
+POST   /api/v1/wishlist/{productId}/toggle
+GET    /api/v1/wishlist/{productId}/check
 
 ---
 
@@ -167,37 +242,48 @@ DELETE /api/v1/products/{id}
 ## Trạng thái hiện tại
 - [x] Project setup
 - [x] Docker (PostgreSQL + Redis)
-- [x] Flyway Migration (V1-V4)
+- [x] Flyway Migration (V1-V7)
 - [x] Exception Handling + Validation
 - [x] Security Config + CORS + Swagger
-- [x] JWT (JwtUtil, JwtFilter, CustomUserDetailsService)
+- [x] JWT (JwtUtil, JwtFilter, CustomUserDetails, CustomUserDetailsService)
 - [x] Auth Module (register, login, refresh, logout, me, Google OAuth2)
 - [x] User Module
 - [x] Category Module
 - [x] Brand Module
 - [x] Product Module (CRUD, pagination, filter, search)
-- [x] Redis (one-time code cho Google OAuth2)
-- [ ] Cart Module
-- [ ] Order Module
-- [ ] Payment Module
-- [ ] Review + Wishlist
-- [ ] Admin Dashboard
-- [ ] Redis Cache cho Product
+- [x] Redis (blacklist + one-time code OAuth2)
+- [x] Cart Module (add, update, remove, clear, get)
+- [x] Order Module (place, get, cancel, admin update status)
+- [x] Review Module (create, update/PATCH, delete, get by product, avg rating)
+- [x] Wishlist Module (toggle add/remove, get, check)
+- [ ] Redis Cache Product
 - [ ] Role-based Authorization
+- [ ] Payment Module
+- [ ] Admin Dashboard
 
 ---
 
 ## Roadmap tiếp theo
-Bước 1-12: Done ✅
-Bước 13: Cart Module
-Bước 14: Order Module
-Bước 15: Payment Module
-Bước 16: Review + Wishlist
-Bước 17: Redis Cache
+Bước 13-16: Done ✅
+Bước 17: Redis Cache Product
 Bước 18: Role-based Authorization
-Bước 19: Admin Dashboard
+Bước 19: Payment Module (VNPay)
+Bước 20: Admin Dashboard
 
 ---
+
+## Lưu ý kỹ thuật quan trọng
+- Dùng `@Transactional(readOnly=true)` ở class level cho Service
+- ProductRepository dùng `nativeQuery=true` để tránh lỗi PostgreSQL
+- `.env` file không commit lên GitHub
+- `application.yaml` (không phải `.yml`)
+- IDE: IntelliJ IDEA Ultimate, OS: Windows
+- Test: Swagger UI + Postman
+- JwtFilter set principal là `CustomUserDetails` (không phải String email)
+- ApiResponse có static method `success(T result)`
+- WishlistService.toggleWishlist dùng `flush()` sau delete để tránh race condition
+- Review chỉ cho phép tạo khi order có status DELIVERED
+- Toggle wishlist: add nếu chưa có, remove nếu đã có — trả về `wishlisted: true/false`
 
 ## Quy tắc làm việc
 - Đi từng bước nhỏ, xong bước nào confirm rồi mới qua bước tiếp
