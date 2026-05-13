@@ -26,6 +26,11 @@ public enum ErrorCode {
     BRAND_NOT_FOUND(2003, "Brand not found", HttpStatus.NOT_FOUND),
     CATEGORY_HAS_CHILDREN(2004, "Cannot delete category that has sub-categories", HttpStatus.BAD_REQUEST),
 
+    //CART MODULE
+    CART_ITEM_NOT_FOUND(4001, "Cart item not found", HttpStatus.NOT_FOUND),
+    CART_ITEM_ALREADY_EXISTS(4002, "Product already in cart", HttpStatus.CONFLICT),
+    INSUFFICIENT_STOCK(4003, "Insufficient stock", HttpStatus.BAD_REQUEST),
+
     // ORDER MODULE
     ORDER_NOT_FOUND(3001, "Order not found", HttpStatus.NOT_FOUND);
 
