@@ -1,5 +1,6 @@
 package com.novafurniture.NovaFurniture.service.impl;
 
+import com.novafurniture.NovaFurniture.common.constant.CacheConstants;
 import com.novafurniture.NovaFurniture.dto.request.ProductRequest;
 import com.novafurniture.NovaFurniture.dto.response.BrandResponse;
 import com.novafurniture.NovaFurniture.dto.response.CategoryResponse;
@@ -18,6 +19,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +43,12 @@ public class ProductServiceImpl implements ProductService {
     BrandRepository brandRepository;
 
     @Override
+    @Cacheable(value = CacheConstants.PRODUCTS, key = """
+        #keyword + '_' + #categoryId + '_' + #brandId + '_' +
+        #material + '_' + #color + '_' + #minPrice + '_' +
+        #maxPrice + '_' + #page + '_' + #size + '_' +
+        #sortBy + '_' + #sortDir
+        """)
     public PageResponse<ProductResponse> getAllProducts(
             String keyword, Long categoryId, Long brandId,
             String material, String color,
@@ -70,6 +80,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = CacheConstants.PRODUCT, key = "#id")
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -77,6 +88,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = CacheConstants.PRODUCT_SLUG, key = "#slug")
     public ProductResponse getProductBySlug(String slug) {
         Product product = productRepository.findBySlug(slug)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -85,6 +97,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @CacheEvict(value = CacheConstants.PRODUCTS, allEntries = true)
     public ProductResponse createProduct(ProductRequest request) {
         String slug = CategoryServiceImpl.generateSlug(request.getName());
 
@@ -126,6 +139,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheConstants.PRODUCTS,     allEntries = true),
+            @CacheEvict(value = CacheConstants.PRODUCT,      key = "#id"),
+            @CacheEvict(value = CacheConstants.PRODUCT_SLUG, allEntries = true)
+    })
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -159,6 +177,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheConstants.PRODUCTS,     allEntries = true),
+            @CacheEvict(value = CacheConstants.PRODUCT,      key = "#id"),
+            @CacheEvict(value = CacheConstants.PRODUCT_SLUG, allEntries = true)
+    })
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
