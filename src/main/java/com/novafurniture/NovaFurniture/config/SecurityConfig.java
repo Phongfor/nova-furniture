@@ -116,6 +116,10 @@ public class SecurityConfig {
                                 "/api/v1/orders/{orderId}/status"
                         ).hasAnyRole("ADMIN", "STAFF")
 
+                        // ── Admin Dashboard — ADMIN + STAFF ─────────────────────  ← thêm đoạn này
+                        .requestMatchers("/api/v1/admin/**")
+                        .hasAnyRole("ADMIN", "STAFF")
+
                         // ── Authenticated (USER + STAFF + ADMIN) ─────────────────
                         .anyRequest().authenticated()
                 )

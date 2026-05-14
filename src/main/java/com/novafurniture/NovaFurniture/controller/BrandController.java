@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public class BrandController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<BrandResponse> createBrand(
             @RequestBody @Valid BrandRequest request) {
         return ApiResponse.<BrandResponse>builder()
@@ -46,6 +48,7 @@ public class BrandController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<BrandResponse> updateBrand(
             @PathVariable Long id,
             @RequestBody @Valid BrandRequest request) {
@@ -56,6 +59,7 @@ public class BrandController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> deleteBrand(@PathVariable Long id) {
         brandService.deleteBrand(id);
         return ApiResponse.<Void>builder()
