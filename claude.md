@@ -23,7 +23,9 @@ Mục tiêu: Java Backend Intern/Fresher Portfolio 2026.
 
 ## Package Structure
 src/main/java/com/novafurniture/NovaFurniture/
-├── common/response/ApiResponse.java
+├── common/
+│   ├── CacheConstants.java
+│   └── response/ApiResponse.java
 ├── config/
 │   ├── AppConfig.java
 │   ├── CorsConfig.java
@@ -139,6 +141,7 @@ src/main/java/com/novafurniture/NovaFurniture/
 - V5__create_cart_items_table.sql — bảng cart_items
 - V6__create_orders_table.sql — bảng orders + order_items
 - V7__create_reviews_wishlist_table.sql — bảng reviews + wishlist_items
+- V8__insert_admin_user.sql — insert admin + staff mặc định
 
 ---
 
@@ -172,25 +175,25 @@ Auth
 POST /api/v1/auth/register
 POST /api/v1/auth/login
 POST /api/v1/auth/refresh
-POST /api/v1/auth/logout
+POST /api/v1/auth/logout        ← blacklist token vào Redis
 GET  /api/v1/auth/me
 POST /api/v1/auth/oauth2/token
 GET  /oauth2/authorization/google
 
 User
-GET  /api/v1/users
-GET  /api/v1/users/{id}
+GET  /api/v1/users              [ADMIN, STAFF]
+GET  /api/v1/users/{id}         [ADMIN, STAFF, hoặc chính user đó]
 
 Category
-GET/POST/PUT/DELETE /api/v1/categories
+GET/POST/PUT/DELETE /api/v1/categories   (POST/PUT/DELETE: ADMIN only)
 GET /api/v1/categories/{id}
 
 Brand
-GET/POST/PUT/DELETE /api/v1/brands
+GET/POST/PUT/DELETE /api/v1/brands       (POST/PUT/DELETE: ADMIN only)
 GET /api/v1/brands/{id}
 
 Product
-GET/POST/PUT/DELETE /api/v1/products
+GET/POST/PUT/DELETE /api/v1/products     (POST/PUT/DELETE: ADMIN only)
 GET /api/v1/products/{id}
 GET /api/v1/products/slug/{slug}
 
@@ -206,12 +209,12 @@ POST   /api/v1/orders
 GET    /api/v1/orders/my
 GET    /api/v1/orders/{orderId}
 PATCH  /api/v1/orders/{orderId}/cancel
-GET    /api/v1/orders                    [ADMIN]
-PATCH  /api/v1/orders/{orderId}/status   [ADMIN]
+GET    /api/v1/orders                    [ADMIN, STAFF]
+PATCH  /api/v1/orders/{orderId}/status   [ADMIN, STAFF]
 
 Review
-GET    /api/v1/reviews/product/{productId}
-GET    /api/v1/reviews/product/{productId}/rating
+GET    /api/v1/reviews/product/{productId}         (public)
+GET    /api/v1/reviews/product/{productId}/rating  (public)
 GET    /api/v1/reviews/my
 POST   /api/v1/reviews
 PATCH  /api/v1/reviews/{reviewId}
@@ -221,6 +224,22 @@ Wishlist
 GET    /api/v1/wishlist
 POST   /api/v1/wishlist/{productId}/toggle
 GET    /api/v1/wishlist/{productId}/check
+
+---
+
+## Phân quyền
+| API | PUBLIC | USER | STAFF | ADMIN |
+|-----|--------|------|-------|-------|
+| GET products/categories/brands | ✅ | ✅ | ✅ | ✅ |
+| POST/PUT/DELETE products/categories/brands | ❌ | ❌ | ❌ | ✅ |
+| GET /users | ❌ | ❌ | ✅ | ✅ |
+| GET /users/{id} (của mình) | ❌ | ✅ | ✅ | ✅ |
+| GET /users/{id} (người khác) | ❌ | ❌ | ✅ | ✅ |
+| Cart | ❌ | ✅ | ✅ | ✅ |
+| POST/GET/PATCH/DELETE orders (của mình) | ❌ | ✅ | ✅ | ✅ |
+| GET /orders (all) | ❌ | ❌ | ✅ | ✅ |
+| PATCH /orders/{id}/status | ❌ | ❌ | ✅ | ✅ |
+| Review/Wishlist | ❌ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -242,48 +261,53 @@ GET    /api/v1/wishlist/{productId}/check
 ## Trạng thái hiện tại
 - [x] Project setup
 - [x] Docker (PostgreSQL + Redis)
-- [x] Flyway Migration (V1-V7)
+- [x] Flyway Migration (V1-V8)
 - [x] Exception Handling + Validation
 - [x] Security Config + CORS + Swagger
 - [x] JWT (JwtUtil, JwtFilter, CustomUserDetails, CustomUserDetailsService)
-- [x] Auth Module (register, login, refresh, logout, me, Google OAuth2)
+- [x] Auth Module (register, login, refresh, logout với Redis blacklist, me, Google OAuth2)
 - [x] User Module
 - [x] Category Module
 - [x] Brand Module
 - [x] Product Module (CRUD, pagination, filter, search)
-- [x] Redis (blacklist + one-time code OAuth2)
+- [x] Redis (blacklist logout + one-time code OAuth2)
 - [x] Cart Module (add, update, remove, clear, get)
 - [x] Order Module (place, get, cancel, admin update status)
 - [x] Review Module (create, update/PATCH, delete, get by product, avg rating)
 - [x] Wishlist Module (toggle add/remove, get, check)
-- [ ] Redis Cache Product
-- [ ] Role-based Authorization
-- [ ] Payment Module
+- [x] Redis Cache Product (@Cacheable, @CacheEvict)
+- [x] Role-based Authorization (PUBLIC/USER/STAFF/ADMIN)
+- [ ] Payment Module (VNPay)
 - [ ] Admin Dashboard
 
 ---
 
 ## Roadmap tiếp theo
-Bước 13-16: Done ✅
-Bước 17: Redis Cache Product
-Bước 18: Role-based Authorization
+Bước 13-18: Done ✅
 Bước 19: Payment Module (VNPay)
 Bước 20: Admin Dashboard
 
 ---
 
 ## Lưu ý kỹ thuật quan trọng
-- Dùng `@Transactional(readOnly=true)` ở class level cho Service
+- `@Transactional(readOnly=true)` ở class level cho Service
 - ProductRepository dùng `nativeQuery=true` để tránh lỗi PostgreSQL
 - `.env` file không commit lên GitHub
 - `application.yaml` (không phải `.yml`)
 - IDE: IntelliJ IDEA Ultimate, OS: Windows
 - Test: Swagger UI + Postman
 - JwtFilter set principal là `CustomUserDetails` (không phải String email)
+- JwtFilter check blacklist Redis trước khi authenticate — trả về 401 trực tiếp (không gọi filterChain)
 - ApiResponse có static method `success(T result)`
+- RedisService dùng `StringRedisTemplate` (không phải `RedisTemplate<String, Object>`)
+- RedisConfig có 2 beans: `redisTemplate<String,Object>` cho cache, `StringRedisTemplate` cho blacklist/OAuth2
 - WishlistService.toggleWishlist dùng `flush()` sau delete để tránh race condition
 - Review chỉ cho phép tạo khi order có status DELIVERED
 - Toggle wishlist: add nếu chưa có, remove nếu đã có — trả về `wishlisted: true/false`
+- Logout blacklist token vào Redis với TTL = thời gian còn lại của token
+- Admin mặc định: admin@novafurniture.com / Admin@123
+- Staff mặc định: staff@novafurniture.com / Staff@123
+- exceptionHandling trong SecurityConfig trả về JSON cho 401/403
 
 ## Quy tắc làm việc
 - Đi từng bước nhỏ, xong bước nào confirm rồi mới qua bước tiếp

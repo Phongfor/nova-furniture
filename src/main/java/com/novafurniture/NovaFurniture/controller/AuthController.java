@@ -57,7 +57,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ApiResponse<Void> logout(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7); // bỏ "Bearer "
+        String token = authHeader.substring(7);
         authService.logout(token);
         return ApiResponse.<Void>builder()
                 .message("Logout successfully")

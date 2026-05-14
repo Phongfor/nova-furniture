@@ -108,8 +108,9 @@ public class AuthServiceImpl implements AuthService {
         if (!jwtUtil.isTokenValid(accessToken)) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
-        // Sau này sẽ thêm blacklist token vào Redis
-        log.info("User logged out");
+        long ttl = jwtUtil.getExpirationTime(accessToken);
+        redisService.set("blacklist:" + accessToken, "true", ttl);
+        log.info("User logged out, token blacklisted");
     }
 
     @Override
