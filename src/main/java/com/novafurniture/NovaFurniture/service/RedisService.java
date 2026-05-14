@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
@@ -15,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class RedisService {
 
-    RedisTemplate<String, String> redisTemplate;
+    StringRedisTemplate redisTemplate;
 
     public void set(String key, String value, long timeout, TimeUnit timeUnit) {
         redisTemplate.opsForValue().set(key, value, timeout, timeUnit);
@@ -31,5 +32,9 @@ public class RedisService {
 
     public boolean hasKey(String key) {
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+    }
+
+    public void set(String key, String value, long ttlMillis) {
+        redisTemplate.opsForValue().set(key, value, ttlMillis, TimeUnit.MILLISECONDS);
     }
 }

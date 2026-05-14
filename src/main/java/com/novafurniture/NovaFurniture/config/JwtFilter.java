@@ -1,5 +1,6 @@
 package com.novafurniture.NovaFurniture.config;
 
+import com.novafurniture.NovaFurniture.service.RedisService;
 import com.novafurniture.NovaFurniture.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -27,8 +26,9 @@ import java.util.List;
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
-    JwtUtil jwtUtil;
+    JwtUtil            jwtUtil;
     UserDetailsService userDetailsService;
+    RedisService       redisService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -36,16 +36,13 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // Lấy Authorization header
         String authHeader = request.getHeader("Authorization");
 
-        // Nếu không có header hoặc không bắt đầu bằng "Bearer " → bỏ qua
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Lấy token (bỏ "Bearer " ở đầu)
         String token = authHeader.substring(7);
 
         // Validate token
@@ -54,11 +51,17 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Lấy email từ token
+        // Check blacklist — trả về 401 ngay, không cho đi tiếp
+        if (redisService.hasKey("blacklist:" + token)) {
+            log.info("Token is blacklisted, rejecting request");
+            response.setContentType("application/json;charset=UTF-8");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"code\":1201,\"message\":\"Unauthenticated\"}");
+            return;
+        }
+
         String email = jwtUtil.extractEmail(token);
 
-
-        // Nếu chưa có authentication trong context
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             if (jwtUtil.isTokenValid(token)) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
@@ -69,7 +72,8 @@ public class JwtFilter extends OncePerRequestFilter {
                                 null,
                                 userDetails.getAuthorities()
                         );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
