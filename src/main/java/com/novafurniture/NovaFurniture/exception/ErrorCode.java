@@ -30,10 +30,10 @@ public enum ErrorCode {
     CART_ITEM_NOT_FOUND(4001, "Cart item not found", HttpStatus.NOT_FOUND),
     CART_ITEM_ALREADY_EXISTS(4002, "Product already in cart", HttpStatus.CONFLICT),
     INSUFFICIENT_STOCK(4003, "Insufficient stock", HttpStatus.BAD_REQUEST),
+    CART_EMPTY(4004,"Cart is empty", HttpStatus.BAD_REQUEST),
 
     // ORDER MODULE
     ORDER_NOT_FOUND(3001, "Order not found", HttpStatus.NOT_FOUND),
-    CART_EMPTY(4004,"Cart is empty", HttpStatus.BAD_REQUEST),
     ORDER_CANNOT_CANCEL(3002,"Only PENDING orders can be cancelled", HttpStatus.BAD_REQUEST),
 
     // WISHLIST MODULE
@@ -42,7 +42,13 @@ public enum ErrorCode {
     REVIEW_NOT_PURCHASED(5003, "You must purchase this product before reviewing", HttpStatus.BAD_REQUEST),
 
     // REVIEW MODULE
-    WISHLIST_ITEM_NOT_FOUND(5004, "Wishlist item not found", HttpStatus.NOT_FOUND);
+    WISHLIST_ITEM_NOT_FOUND(5004, "Wishlist item not found", HttpStatus.NOT_FOUND),
+
+    // PAYMENT MODULE
+    PAYMENT_NOT_FOUND(6001, "Payment not found", HttpStatus.NOT_FOUND),
+    PAYMENT_ALREADY_EXISTS(6002, "Order already has a payment", HttpStatus.CONFLICT),
+    PAYMENT_INVALID_SIGNATURE(6003, "Invalid payment signature", HttpStatus.BAD_REQUEST),
+    ORDER_NOT_PENDING(6004, "Order must be PENDING to create payment", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

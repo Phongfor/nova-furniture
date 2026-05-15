@@ -81,7 +81,8 @@ public class SecurityConfig {
                                 "/api/v1/brands",
                                 "/api/v1/brands/{id}",
                                 "/api/v1/reviews/product/{productId}",
-                                "/api/v1/reviews/product/{productId}/rating"
+                                "/api/v1/reviews/product/{productId}/rating",
+                                "/api/v1/payments/vnpay/callback"
                         ).permitAll()
 
                         // ── ADMIN only ───────────────────────────────────────────
