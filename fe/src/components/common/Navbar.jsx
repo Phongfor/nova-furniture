@@ -12,11 +12,12 @@ import {
 import { ThemeContext } from '../../contexts/ThemeContext';
 import { AuthContext } from '../../contexts/AuthProvider';
 import { Link } from 'react-router-dom';
+import { SidebarContext } from '../../contexts/SidebarProvider';
 
 export default function Navbar() {
-    const [openMenu, setOpenMenu] = useState(false);
     const { user, logout } = useContext(AuthContext);
     const { darkMode, toggleTheme } = useContext(ThemeContext);
+    const { openSidebar, closeSidebar, isOpen } = useContext(SidebarContext);
 
     const navItems = [
         { label: 'Collections', active: true },
@@ -99,11 +100,17 @@ export default function Navbar() {
                         {darkMode ? <FiSun /> : <FiMoon />}
                     </button>
 
-                    <button className='text-[#131313] dark:text-white'>
+                    <button
+                        onClick={() => openSidebar('wishlist')}
+                        className='text-[#131313] dark:text-white'
+                    >
                         <FiHeart />
                     </button>
 
-                    <button className='text-[#131313] dark:text-white'>
+                    <button
+                        onClick={() => openSidebar('cart')}
+                        className='text-[#131313] dark:text-white'
+                    >
                         <FiShoppingBag />
                     </button>
 
@@ -191,20 +198,18 @@ export default function Navbar() {
                     </nav>
                     {/* Mobile */}
                     <button
-                        className='
-              text-2xl text-[#131313]
-              dark:text-white
-              md:hidden
-            '
-                        onClick={() => setOpenMenu(!openMenu)}
+                        className='text-2xl text-[#131313] dark:text-white md:hidden'
+                        onClick={() =>
+                            isOpen ? closeSidebar() : openSidebar('menu')
+                        }
                     >
-                        {openMenu ? <FiX /> : <FiMenu />}
+                        {isOpen ? <FiX /> : <FiMenu />}
                     </button>
                 </div>
             </div>
 
             {/* Mobile Menu */}
-            {openMenu && (
+            {isOpen && (
                 <div
                     className='
             border-t border-zinc-200
