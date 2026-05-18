@@ -25,10 +25,8 @@ export default function LoginForm() {
 
             const refreshToken = response.data.result.refreshToken;
 
-            // gọi context login
             login(accessToken);
-
-            // lưu refresh token
+          
             localStorage.setItem('refreshToken', refreshToken);
 
             alert('Login success');

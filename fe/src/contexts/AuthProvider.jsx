@@ -37,7 +37,6 @@ const AuthProvider = ({ children }) => {
         localStorage.setItem('token', token);
 
         const decoded = parseJwt(token);
-        console.log(decoded);
         if (decoded) {
             setUser({
                 email: decoded.sub,
