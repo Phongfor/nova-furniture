@@ -1,19 +1,10 @@
 // contexts/ProductProvider.jsx
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import productService from '../services/productService';
+import categoryService from '../services/categoryService';
 
 export const ProductContext = createContext();
-
 export const useProduct = () => useContext(ProductContext);
-
-// Constants dùng chung
-export const CATEGORIES = [
-    { label: 'All', value: null },
-    { label: 'Seating', value: 'seating' },
-    { label: 'Tables', value: 'tables' },
-    { label: 'Lighting', value: 'lighting' },
-    { label: 'Objects', value: 'objects' }
-];
 
 export const MATERIALS = ['Oak', 'Walnut', 'Concrete', 'Metal'];
 
@@ -31,12 +22,34 @@ export default function ProductProvider({ children }) {
     const [totalElements, setTotalElements] = useState(0);
     const [page, setPage] = useState(0);
 
-    // Filters
+    const [categories, setCategories] = useState([]);
+    const [categoriesLoading, setCategoriesLoading] = useState(true);
+
+    const [keyword, setKeyword] = useState('');
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [selectedMaterials, setSelectedMaterials] = useState([]);
     const [selectedSort, setSelectedSort] = useState(SORT_OPTIONS[0]);
 
-    const fetchProducts = useCallback(async (overrideParams = {}) => {
+    // Reset page khi keyword thay đổi
+    useEffect(() => {
+        setPage(0);
+    }, [keyword]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await categoryService.getCategories();
+                setCategories(res.data.result ?? []);
+            } catch (err) {
+                console.error('Failed to fetch categories:', err);
+            } finally {
+                setCategoriesLoading(false);
+            }
+        };
+        fetchCategories();
+    }, []);
+
+    const fetchProducts = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
@@ -45,11 +58,11 @@ export default function ProductProvider({ children }) {
                 size: 9,
                 sortBy: selectedSort.sortBy,
                 sortDir: selectedSort.sortDir,
+                ...(keyword && { keyword }),
                 ...(selectedCategory && { categoryId: selectedCategory }),
                 ...(selectedMaterials.length === 1 && {
                     material: selectedMaterials[0].toLowerCase()
-                }),
-                ...overrideParams
+                })
             };
 
             const res = await productService.getProducts(params);
@@ -58,13 +71,13 @@ export default function ProductProvider({ children }) {
             setProducts(result?.content ?? []);
             setTotalPages(result?.totalPages ?? 1);
             setTotalElements(result?.totalElements ?? 0);
-        } catch (err) {
+        } catch {
             setError('Failed to load products.');
             setProducts([]);
         } finally {
             setLoading(false);
         }
-    }, [page, selectedCategory, selectedMaterials, selectedSort]);
+    }, [page, selectedCategory, selectedMaterials, selectedSort, keyword]);
 
     const toggleMaterial = (mat) => {
         setSelectedMaterials((prev) =>
@@ -73,8 +86,8 @@ export default function ProductProvider({ children }) {
         setPage(0);
     };
 
-    const handleSelectCategory = (val) => {
-        setSelectedCategory(val);
+    const handleSelectCategory = (id) => {
+        setSelectedCategory(id);
         setPage(0);
     };
 
@@ -84,6 +97,7 @@ export default function ProductProvider({ children }) {
     };
 
     const clearFilters = () => {
+        setKeyword('');
         setSelectedCategory(null);
         setSelectedMaterials([]);
         setSelectedSort(SORT_OPTIONS[0]);
@@ -91,26 +105,17 @@ export default function ProductProvider({ children }) {
     };
 
     const hasActiveFilters =
-        selectedCategory !== null || selectedMaterials.length > 0;
+        keyword !== '' || selectedCategory !== null || selectedMaterials.length > 0;
 
     return (
         <ProductContext.Provider
             value={{
-                // Data
-                products,
-                loading,
-                error,
-                totalPages,
-                totalElements,
-                page,
-                setPage,
-
-                // Filters state
-                selectedCategory,
-                selectedMaterials,
-                selectedSort,
-
-                // Actions
+                products, loading, error,
+                totalPages, totalElements,
+                page, setPage,
+                categories, categoriesLoading,
+                keyword, setKeyword,
+                selectedCategory, selectedMaterials, selectedSort,
                 fetchProducts,
                 toggleMaterial,
                 handleSelectCategory,

@@ -6,6 +6,7 @@ import ProductProvider from '../../../contexts/ProductProvider';
 import CollectionFilter from '../../../components/collections/Collectionfilter/Collectionfilter';
 import CollectionGrid from '../../../components/collections/Collectiongrid/Collectiongrid';
 import CollectionHeader from '../../../components/collections/Collectionheader/Collectionheader';
+import CollectionSearch from '../../../components/collections/Collectionsearch/Collectionsearch';
 
 export default function CollectionsPage() {
     const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
@@ -17,7 +18,7 @@ export default function CollectionsPage() {
 
                 <main className='mx-auto max-w-[1440px] px-4 pb-24 pt-32 md:px-8 lg:px-12'>
                     <CollectionHeader />
-
+                    <CollectionSearch/>
                     <div className='flex gap-12'>
                         <CollectionFilter
                             mobileOpen={mobileFilterOpen}

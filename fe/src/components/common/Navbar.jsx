@@ -11,13 +11,15 @@ import {
 } from 'react-icons/fi';
 import { ThemeContext } from '../../contexts/ThemeContext';
 import { AuthContext } from '../../contexts/AuthProvider';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { SidebarContext } from '../../contexts/SidebarProvider';
 
 export default function Navbar() {
     const { user, logout } = useContext(AuthContext);
     const { darkMode, toggleTheme } = useContext(ThemeContext);
     const { openSidebar, closeSidebar, isOpen } = useContext(SidebarContext);
+
+    const navigate = useNavigate();
 
     const navItems = [
         { label: 'Collections', active: true },
@@ -37,16 +39,9 @@ export default function Navbar() {
         dark:bg-black/80
       '
         >
-            <div className='mx-auto flex max-w-[1440px] items-center justify-between px-4 py-5 md:px-8 lg:px-12'>
+            <div className='mx-auto flex max-w-[1440px] items-center justify-between px-4 py-5 md:px-8 lg:px-12 cursor-pointer'>
                 {/* Logo */}
-                <h1
-                    className='
-            text-lg font-semibold tracking-tight
-            text-[#131313]
-
-            dark:text-white
-          '
-                >
+                <h1 onClick={() => navigate('/')} className='text-lg font-semibold tracking-tighttext-[#131313] dark:text-white'>
                     NOVAFURNITURE
                 </h1>
 
