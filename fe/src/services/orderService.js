@@ -19,7 +19,10 @@ const orderService = {
 
     // GET /orders/{orderId}
     getOrderById: (orderId) =>
-        axiosClient.get(`/orders/${orderId}`)
+        axiosClient.get(`/orders/${orderId}`),
+
+    // PATCH /orders/{orderId}/cancel
+    cancelOrder: (orderId) => axiosClient.patch(`/orders/${orderId}/cancel`)
 };
 
 export default orderService;

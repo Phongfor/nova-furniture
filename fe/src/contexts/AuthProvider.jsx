@@ -25,6 +25,15 @@ const AuthProvider = ({ children }) => {
             const decoded = parseJwt(token);
 
             if (decoded) {
+                
+                const isExpired = decoded.exp * 1000 < Date.now();
+
+                if (isExpired) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('refreshToken');
+                    return;
+                }
+
                 setUser({
                     email: decoded.sub,
                     role: decoded.role

@@ -1,8 +1,14 @@
 // components/common/Navbar.jsx
 import { useContext, useState, useRef, useEffect } from 'react';
 import {
-    FiHeart, FiShoppingBag, FiUser,
-    FiMenu, FiX, FiMoon, FiSun, FiSearch
+    FiHeart,
+    FiShoppingBag,
+    FiUser,
+    FiMenu,
+    FiX,
+    FiMoon,
+    FiSun,
+    FiSearch
 } from 'react-icons/fi';
 import { ThemeContext } from '../../contexts/ThemeContext';
 import { AuthContext } from '../../contexts/AuthProvider';
@@ -52,7 +58,6 @@ export default function Navbar() {
     return (
         <header className='fixed top-0 left-0 z-50 w-full border-b border-zinc-200/20 bg-[#FBFBF5]/90 backdrop-blur-xl dark:border-zinc-700/30 dark:bg-black/80'>
             <div className='mx-auto flex max-w-[1440px] items-center justify-between px-4 py-5 md:px-8 lg:px-12'>
-
                 {/* Logo */}
                 <Link to='/'>
                     <h1 className='text-lg font-semibold tracking-tight text-[#131313] dark:text-white'>
@@ -63,8 +68,10 @@ export default function Navbar() {
                 {/* Desktop Nav */}
                 <nav className='hidden items-center gap-10 md:flex'>
                     {navItems.map((item) => {
-                        const isActive = location.pathname === item.href ||
-                            (item.href !== '/' && location.pathname.startsWith(item.href));
+                        const isActive =
+                            location.pathname === item.href ||
+                            (item.href !== '/' &&
+                                location.pathname.startsWith(item.href));
                         return (
                             <Link
                                 key={item.label}
@@ -97,11 +104,17 @@ export default function Navbar() {
                         {darkMode ? <FiSun /> : <FiMoon />}
                     </button>
 
-                    <button onClick={() => openSidebar('wishlist')} className='text-[#131313] dark:text-white'>
+                    <button
+                        onClick={() => openSidebar('wishlist')}
+                        className='text-[#131313] dark:text-white'
+                    >
                         <FiHeart />
                     </button>
 
-                    <button onClick={() => openSidebar('cart')} className='text-[#131313] dark:text-white'>
+                    <button
+                        onClick={() => openSidebar('cart')}
+                        className='text-[#131313] dark:text-white'
+                    >
                         <FiShoppingBag />
                     </button>
 
@@ -111,7 +124,9 @@ export default function Navbar() {
                             className='hidden sm:flex items-center gap-2 px-5 py-2 rounded-full border border-[#131313] dark:border-white text-[#131313] dark:text-white hover:bg-[#131313] hover:text-white dark:hover:bg-white dark:hover:text-black transition-all'
                         >
                             <FiUser />
-                            <span className='text-sm uppercase tracking-wider'>Login</span>
+                            <span className='text-sm uppercase tracking-wider'>
+                                Login
+                            </span>
                         </Link>
                     ) : (
                         <div className='relative hidden sm:block group'>
@@ -121,8 +136,16 @@ export default function Navbar() {
                             <div className='absolute right-0 top-8 w-48 invisible opacity-0 translate-y-2 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0'>
                                 <div className='rounded-xl border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-900'>
                                     <div className='px-4 py-3 border-b border-zinc-100 dark:border-zinc-800'>
-                                        <p className='text-xs text-zinc-400 truncate'>{user.email}</p>
+                                        <p className='text-xs text-zinc-400 truncate'>
+                                            {user.email}
+                                        </p>
                                     </div>
+                                    <Link
+                                        to='/orders'
+                                        className='block w-full px-4 py-3 text-left text-sm text-black hover:bg-zinc-50 dark:text-white dark:hover:bg-zinc-800 transition'
+                                    >
+                                        My Orders
+                                    </Link>
                                     <button
                                         onClick={logout}
                                         className='w-full px-4 py-3 text-left text-sm text-black hover:bg-red-500 hover:text-white dark:text-white rounded-b-xl transition'
@@ -170,12 +193,21 @@ export default function Navbar() {
                 <>
                     <div
                         className='fixed inset-0 z-40 bg-black/30 backdrop-blur-sm'
-                        onClick={() => { setSearchOpen(false); setKeyword(''); }}
+                        onClick={() => {
+                            setSearchOpen(false);
+                            setKeyword('');
+                        }}
                     />
                     <div className='absolute top-full left-0 right-0 z-50 bg-[#FBFBF5] dark:bg-[#131313] border-b border-zinc-200 dark:border-zinc-800 px-4 py-4 md:px-8 lg:px-12'>
-                        <form onSubmit={handleSearch} className='mx-auto max-w-[1440px]'>
+                        <form
+                            onSubmit={handleSearch}
+                            className='mx-auto max-w-[1440px]'
+                        >
                             <div className='flex items-center gap-4'>
-                                <FiSearch className='shrink-0 text-zinc-400' size={18} />
+                                <FiSearch
+                                    className='shrink-0 text-zinc-400'
+                                    size={18}
+                                />
                                 <input
                                     ref={searchInputRef}
                                     type='text'
@@ -186,7 +218,11 @@ export default function Navbar() {
                                     className='flex-1 bg-transparent text-base text-black placeholder:text-zinc-400 outline-none dark:text-white'
                                 />
                                 {keyword && (
-                                    <button type='button' onClick={() => setKeyword('')} className='text-zinc-400 hover:text-black dark:hover:text-white transition'>
+                                    <button
+                                        type='button'
+                                        onClick={() => setKeyword('')}
+                                        className='text-zinc-400 hover:text-black dark:hover:text-white transition'
+                                    >
                                         <FiX size={16} />
                                     </button>
                                 )}

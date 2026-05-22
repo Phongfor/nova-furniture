@@ -8,6 +8,8 @@ import CheckoutPage from '../pages/client/CheckoutPage/CheckoutPage';
 import PaymentCallback from '../pages/client/PaymentCallback/PaymentCallback';
 import JournalPage from '../pages/client/JournalPage/JournalPage';
 import OurStoryPage from '../pages/client/OurStoryPage/OurStoryPage';
+import OrderDetailPage from '../pages/client/Orderdetailpage/Orderdetailpage';
+import OrdersPage from '../pages/client/OrdersPage/OrdersPage';
 
 export default function AppRoutes() {
     return (
@@ -21,6 +23,8 @@ export default function AppRoutes() {
             <Route path='/payment/callback' element={<PaymentCallback />} />
             <Route path='/journal' element={<JournalPage />} />
             <Route path='/our-story' element={<OurStoryPage />} />
+            <Route path='/orders' element={<OrdersPage />} />
+            <Route path='/orders/:orderId' element={<OrderDetailPage />} />
         </Routes>
     );
 }
