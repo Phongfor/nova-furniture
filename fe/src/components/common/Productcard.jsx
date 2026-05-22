@@ -6,49 +6,28 @@ import { SidebarContext } from '../../contexts/SidebarProvider';
 
 export default function ProductCard({ product }) {
     const [hovered, setHovered] = useState(false);
-    const [wishlisted, setWishlisted] = useState(false);
-    const { setCartItems, setWishlistItems, wishlistItems, cartItems } =
+    const { addToCart, openSidebar, toggleWishlist, isWishlisted } =
         useContext(SidebarContext);
 
-    const handleAddToCart = (e) => {
+    const wishlisted = isWishlisted(product.id);
+
+    const handleAddToCart = async (e) => {
         e.preventDefault();
-        setCartItems((prev) => {
-            const exists = prev.find((i) => i.id === product.id);
-            if (exists) {
-                return prev.map((i) =>
-                    i.id === product.id
-                        ? { ...i, quantity: i.quantity + 1 }
-                        : i
-                );
-            }
-            return [
-                ...prev,
-                {
-                    id: product.id,
-                    name: product.name,
-                    price: product.price,
-                    image: product.thumbnail,
-                    quantity: 1
-                }
-            ];
-        });
+        try {
+            await addToCart(product.id, 1);
+            openSidebar('cart');
+        } catch (err) {
+            console.error('Failed to add to cart:', err);
+        }
     };
 
     const handleWishlist = (e) => {
         e.preventDefault();
-        setWishlisted((prev) => !prev);
-        setWishlistItems((prev) => {
-            const exists = prev.find((i) => i.id === product.id);
-            if (exists) return prev.filter((i) => i.id !== product.id);
-            return [
-                ...prev,
-                {
-                    id: product.id,
-                    name: product.name,
-                    price: product.price,
-                    image: product.thumbnail
-                }
-            ];
+        toggleWishlist({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.thumbnail
         });
     };
 
@@ -59,7 +38,6 @@ export default function ProductCard({ product }) {
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
-            {/* Image */}
             <div className='relative overflow-hidden bg-zinc-100 dark:bg-zinc-900'>
                 <div className='aspect-[4/5] w-full'>
                     <img
@@ -69,23 +47,18 @@ export default function ProductCard({ product }) {
                     />
                 </div>
 
-                {/* Actions overlay */}
-                <div
-                    className={`
-                        absolute bottom-0 left-0 right-0
-                        flex gap-2 p-4
-                        transition-all duration-300
-                        ${hovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
-                    `}
-                >
+                <div className={`
+                    absolute bottom-0 left-0 right-0
+                    flex gap-2 p-4 transition-all duration-300
+                    ${hovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+                `}>
                     <button
                         onClick={handleAddToCart}
                         className='
                             flex flex-1 items-center justify-center gap-2
                             rounded-full bg-white/95 py-3
                             text-xs font-semibold uppercase tracking-widest
-                            text-black shadow-lg
-                            backdrop-blur-sm
+                            text-black shadow-lg backdrop-blur-sm
                             transition hover:bg-black hover:text-white
                             dark:bg-black/90 dark:text-white
                             dark:hover:bg-white dark:hover:text-black
@@ -99,24 +72,18 @@ export default function ProductCard({ product }) {
                         onClick={handleWishlist}
                         className={`
                             flex h-11 w-11 shrink-0 items-center justify-center
-                            rounded-full shadow-lg backdrop-blur-sm
-                            transition
-                            ${
-                                wishlisted
-                                    ? 'bg-black text-white dark:bg-white dark:text-black'
-                                    : 'bg-white/95 text-black hover:bg-black hover:text-white dark:bg-black/90 dark:text-white dark:hover:bg-white dark:hover:text-black'
+                            rounded-full shadow-lg backdrop-blur-sm transition
+                            ${wishlisted
+                                ? 'bg-black text-white dark:bg-white dark:text-black'
+                                : 'bg-white/95 text-black hover:bg-black hover:text-white dark:bg-black/90 dark:text-white dark:hover:bg-white dark:hover:text-black'
                             }
                         `}
                     >
-                        <FiHeart
-                            size={15}
-                            fill={wishlisted ? 'currentColor' : 'none'}
-                        />
+                        <FiHeart size={15} fill={wishlisted ? 'currentColor' : 'none'} />
                     </button>
                 </div>
             </div>
 
-            {/* Info */}
             <div className='pt-4'>
                 {product.material && (
                     <p className='mb-1 text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-400'>
