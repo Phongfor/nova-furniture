@@ -36,7 +36,7 @@ axiosClient.interceptors.response.use(
 
             if (!refreshToken) return Promise.reject(err);
             try {
-                const res = await axiosClient.post('/refresh-token', {
+                const res = await axiosClient.post('/auth/refresh', {
                     token: refreshToken
                 });
                 const newAccessToken = res.data.accessToken;

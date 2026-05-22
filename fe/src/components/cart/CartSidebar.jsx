@@ -4,26 +4,20 @@ import { SidebarContext } from "../../contexts/SidebarProvider";
 import { Link } from "react-router-dom";
 
 export default function CartSidebar({ open, onClose }) {
-    const { cartItems } = useContext(SidebarContext);
-
-    const total = cartItems.reduce(
-        (sum, item) => sum + item.price * item.quantity, 0
-    );
+    const { cartItems, totalPrice, totalItems } = useContext(SidebarContext);
 
     return (
         <CommonSidebar
             open={open}
             onClose={onClose}
-            title={`Shopping Cart (${cartItems.length})`}
+            title={`Shopping Cart (${totalItems})`}
             footer={
                 <div className="space-y-3">
-                    {/* Total */}
                     <div className="flex items-center justify-between text-base font-semibold text-black dark:text-white">
                         <span>Total</span>
-                        <span>${total.toFixed(2)}</span>
+                        <span>${totalPrice?.toLocaleString()}</span>
                     </div>
 
-                    {/* Buttons */}
                     <div className="flex flex-col gap-3">
                         <Link
                             to="/cart"
@@ -32,7 +26,6 @@ export default function CartSidebar({ open, onClose }) {
                                 flex-1 rounded-full border border-black
                                 py-3 text-center text-sm font-medium
                                 text-black transition hover:bg-black hover:text-white
-
                                 dark:border-white dark:text-white
                                 dark:hover:bg-white dark:hover:text-black
                             "
@@ -47,7 +40,6 @@ export default function CartSidebar({ open, onClose }) {
                                 flex-1 rounded-full bg-black
                                 py-3 text-center text-sm font-medium
                                 text-white transition hover:opacity-80
-
                                 dark:bg-white dark:text-black
                             "
                         >
@@ -66,19 +58,19 @@ export default function CartSidebar({ open, onClose }) {
                     {cartItems.map((item) => (
                         <li key={item.id} className="flex gap-4">
                             <img
-                                src={item.image}
-                                alt={item.name}
-                                className="h-20 w-20 rounded-xl object-cover"
+                                src={item.productThumbnail}
+                                alt={item.productName}
+                                className="h-20 w-20 rounded-xl object-cover bg-zinc-100 dark:bg-zinc-900"
                             />
                             <div className="flex flex-1 flex-col justify-between">
                                 <p className="text-sm font-medium text-black dark:text-white">
-                                    {item.name}
+                                    {item.productName}
                                 </p>
                                 <p className="text-sm text-zinc-500">
                                     x{item.quantity}
                                 </p>
                                 <p className="text-sm font-semibold text-black dark:text-white">
-                                    ${(item.price * item.quantity).toFixed(2)}
+                                    ${item.subtotal?.toLocaleString()}
                                 </p>
                             </div>
                         </li>

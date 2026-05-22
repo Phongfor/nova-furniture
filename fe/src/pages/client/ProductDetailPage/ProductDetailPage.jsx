@@ -8,7 +8,7 @@ import ProductImages from '../../../components/productDetails/ProductImages/Prod
 import ProductInfo from '../../../components/productDetails/ProductInfo/ProductInfo';
 import ProductSpecs from '../../../components/productDetails/ProductSpecs/ProductSpecs';
 import ProductReviews from '../../../components/productDetails/ProductReviews/ProductReviews';
-import RelatedProducts from '../../../components/productDetails/RelatedProducts/RelatedProducts';
+import RelatedProducts from '../../../components/common/RelatedProducts';
 
 export default function ProductDetailPage() {
     const { slug } = useParams();
@@ -70,7 +70,11 @@ export default function ProductDetailPage() {
                     <div className='mt-24'>
                         <RelatedProducts
                             categoryId={product.category?.id}
-                            currentProductId={product.id}
+                            excludeId={product.id}
+                            title='Pairs Well With'
+                            linkLabel='View All'
+                            size={3}
+                            columns='sm:grid-cols-3'
                         />
                     </div>
                 </main>
