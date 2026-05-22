@@ -23,12 +23,7 @@ export default function ProductCard({ product }) {
 
     const handleWishlist = (e) => {
         e.preventDefault();
-        toggleWishlist({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            image: product.thumbnail
-        });
+        toggleWishlist(product.id);
     };
 
     return (
@@ -47,11 +42,13 @@ export default function ProductCard({ product }) {
                     />
                 </div>
 
-                <div className={`
+                <div
+                    className={`
                     absolute bottom-0 left-0 right-0
                     flex gap-2 p-4 transition-all duration-300
                     ${hovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
-                `}>
+                `}
+                >
                     <button
                         onClick={handleAddToCart}
                         className='
@@ -73,13 +70,17 @@ export default function ProductCard({ product }) {
                         className={`
                             flex h-11 w-11 shrink-0 items-center justify-center
                             rounded-full shadow-lg backdrop-blur-sm transition
-                            ${wishlisted
-                                ? 'bg-black text-white dark:bg-white dark:text-black'
-                                : 'bg-white/95 text-black hover:bg-black hover:text-white dark:bg-black/90 dark:text-white dark:hover:bg-white dark:hover:text-black'
+                            ${
+                                wishlisted
+                                    ? 'bg-black text-white dark:bg-white dark:text-black'
+                                    : 'bg-white/95 text-black hover:bg-black hover:text-white dark:bg-black/90 dark:text-white dark:hover:bg-white dark:hover:text-black'
                             }
                         `}
                     >
-                        <FiHeart size={15} fill={wishlisted ? 'currentColor' : 'none'} />
+                        <FiHeart
+                            size={15}
+                            fill={wishlisted ? 'currentColor' : 'none'}
+                        />
                     </button>
                 </div>
             </div>

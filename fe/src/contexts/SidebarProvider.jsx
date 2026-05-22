@@ -1,6 +1,14 @@
 // contexts/SidebarProvider.jsx
-import { createContext, useState, useCallback, useEffect, useContext } from 'react';
+import {
+    createContext,
+    useState,
+    useCallback,
+    useEffect,
+    useContext
+} from 'react';
+
 import cartService from '../services/cartService';
+import wishlistService from '../services/wishlistService';
 import { AuthContext } from './AuthProvider';
 
 export const SidebarContext = createContext();
@@ -12,14 +20,19 @@ export default function SidebarProvider({ children }) {
     const [sidebarType, setSidebarType] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
 
-    // Wishlist (local state)
+    // Wishlist
     const [wishlistItems, setWishlistItems] = useState([]);
+    const [wishlistLoading, setWishlistLoading] = useState(false);
 
-    // Cart (sync với API)
+    // Cart
     const [cartItems, setCartItems] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
     const [totalPrice, setTotalPrice] = useState(0);
     const [cartLoading, setCartLoading] = useState(false);
+
+    // =========================
+    // CART
+    // =========================
 
     const syncCart = (result) => {
         setCartItems(result?.items ?? []);
@@ -27,7 +40,7 @@ export default function SidebarProvider({ children }) {
         setTotalPrice(result?.totalPrice ?? 0);
     };
 
-    // Fetch cart khi user login
+    // Fetch cart
     const fetchCart = useCallback(async () => {
         if (!user) {
             setCartItems([]);
@@ -35,7 +48,9 @@ export default function SidebarProvider({ children }) {
             setTotalPrice(0);
             return;
         }
+
         setCartLoading(true);
+
         try {
             const res = await cartService.getCart();
             syncCart(res.data.result);
@@ -50,7 +65,7 @@ export default function SidebarProvider({ children }) {
         fetchCart();
     }, [fetchCart]);
 
-    // Cart actions
+    // Add to cart
     const addToCart = async (productId, quantity = 1) => {
         try {
             const res = await cartService.addToCart(productId, quantity);
@@ -61,6 +76,7 @@ export default function SidebarProvider({ children }) {
         }
     };
 
+    // Update quantity
     const updateQuantity = async (cartItemId, quantity) => {
         try {
             const res = await cartService.updateQuantity(cartItemId, quantity);
@@ -70,6 +86,7 @@ export default function SidebarProvider({ children }) {
         }
     };
 
+    // Remove item
     const removeItem = async (cartItemId) => {
         try {
             const res = await cartService.removeItem(cartItemId);
@@ -79,9 +96,11 @@ export default function SidebarProvider({ children }) {
         }
     };
 
+    // Clear cart
     const clearCart = async () => {
         try {
             await cartService.clearCart();
+
             setCartItems([]);
             setTotalItems(0);
             setTotalPrice(0);
@@ -90,17 +109,84 @@ export default function SidebarProvider({ children }) {
         }
     };
 
+    // Place order
     const placeOrder = async () => {
         try {
             const res = await cartService.placeOrder();
+
             await clearCart();
+
             return res.data.result;
         } catch (err) {
             throw err;
         }
     };
 
-    // Sidebar actions
+    // =========================
+    // WISHLIST
+    // =========================
+
+    // Fetch wishlist
+    const fetchWishlist = useCallback(async () => {
+        if (!user) {
+            setWishlistItems([]);
+            return;
+        }
+
+        setWishlistLoading(true);
+
+        try {
+            const res = await wishlistService.getMyWishlist();
+
+            setWishlistItems(
+                Array.isArray(res.data.result?.content)
+                    ? res.data.result.content
+                    : []
+            );
+        } catch (err) {
+            console.error('Failed to fetch wishlist:', err);
+            setWishlistItems([]);
+        } finally {
+            setWishlistLoading(false);
+        }
+    }, [user]);
+
+    useEffect(() => {
+        fetchWishlist();
+    }, [fetchWishlist]);
+
+    // Toggle wishlist
+    const toggleWishlist = async (productId) => {
+        try {
+            await wishlistService.toggleWishlist(productId);
+
+            setWishlistItems((prev) => {
+                const exists = prev.some((item) => item.id === productId);
+
+                // Remove
+                if (exists) {
+                    return prev.filter((item) => item.id !== productId);
+                }
+
+                // Refetch để lấy full product data
+                fetchWishlist();
+
+                return prev;
+            });
+        } catch (err) {
+            console.error('Failed to toggle wishlist:', err);
+        }
+    };
+
+    // Check wishlist
+    const isWishlisted = (productId) => {
+        return wishlistItems.some((item) => item.id === productId);
+    };
+
+    // =========================
+    // SIDEBAR
+    // =========================
+
     const openSidebar = (type) => {
         setSidebarType(type);
         setIsOpen(true);
@@ -110,33 +196,33 @@ export default function SidebarProvider({ children }) {
         setIsOpen(false);
     };
 
-    // Wishlist actions
-    const toggleWishlist = (product) => {
-        setWishlistItems((prev) => {
-            const exists = prev.find((i) => i.id === product.id);
-            if (exists) return prev.filter((i) => i.id !== product.id);
-            return [...prev, product];
-        });
-    };
-
-    const isWishlisted = (productId) =>
-        wishlistItems.some((i) => i.id === productId);
-
     return (
         <SidebarContext.Provider
             value={{
                 // Sidebar
-                sidebarType, isOpen,
-                openSidebar, closeSidebar,
+                sidebarType,
+                isOpen,
+                openSidebar,
+                closeSidebar,
 
                 // Cart
-                cartItems, totalItems, totalPrice, cartLoading,
-                fetchCart, addToCart, updateQuantity,
-                removeItem, clearCart, placeOrder,
+                cartItems,
+                totalItems,
+                totalPrice,
+                cartLoading,
+                fetchCart,
+                addToCart,
+                updateQuantity,
+                removeItem,
+                clearCart,
+                placeOrder,
 
                 // Wishlist
-                wishlistItems, setWishlistItems,
-                toggleWishlist, isWishlisted
+                wishlistItems,
+                wishlistLoading,
+                fetchWishlist,
+                toggleWishlist,
+                isWishlisted
             }}
         >
             {children}
