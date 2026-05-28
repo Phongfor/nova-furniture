@@ -1,9 +1,9 @@
 import {
     SHIPPING_COST,
     TAX_RATE
-} from '../../../../constants/orderConstants';
+} from '../../components/orders/orderConstants';
 
-import { formatCurrency } from '../../../../utils/formatCurrency';
+import { formatCurrency } from '../../utils/formatCurrency';
 import OrderSectionCard from '../common/OrderSectionCard';
 import OrderSectionTitle from '../common/OrderSectionTitle';
 

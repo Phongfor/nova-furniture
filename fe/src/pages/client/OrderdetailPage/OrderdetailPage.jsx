@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from 'react';
-
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { FiArrowLeft } from 'react-icons/fi';
 import orderService from '../../../services/orderService';
@@ -9,23 +8,18 @@ import OrderDetailSkeleton from '../../../components/orderDetail/OrderDetailSkel
 import StatusBadge from '../../../components/common/StatusBadge';
 import CancelOrderButton from '../../../components/common/CancelOrderButton';
 import OrderTracker from '../../../components/common/OrderTracker';
-import ProductDetailsCard from '../../../components/common/';
+import ProductDetailsCard from '../../../components/orderDetail/ProductDetailsCard';
 import PaymentSummaryCard from '../../../components/orderDetail/PaymentSummaryCard';
 import ShippingInfoCard from '../../../components/orderDetail/ShippingInfoCard';
+import { AuthContext } from '../../../contexts/AuthProvider';
 
 export default function OrderDetailPage() {
     const { orderId } = useParams();
-
     const { user } = useContext(AuthContext);
-
     const navigate = useNavigate();
-
     const [order, setOrder] = useState(null);
-
     const [loading, setLoading] = useState(true);
-
     const [cancelling, setCancelling] = useState(false);
-
     const [cancelError, setCancelError] = useState('');
 
     useEffect(() => {
