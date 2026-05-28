@@ -10,6 +10,10 @@ import JournalPage from '../pages/client/JournalPage/JournalPage';
 import OurStoryPage from '../pages/client/OurStoryPage/OurStoryPage';
 import OrderDetailPage from '../pages/client/Orderdetailpage/Orderdetailpage';
 import OrdersPage from '../pages/client/OrdersPage/OrdersPage';
+import AdminOverviewPage from '../pages/admin/AdminOverviewPage';
+import AdminProductsPage from '../pages/admin/AdminProductsPage/AdminProductsPage';
+import AdminOrdersPage from '../pages/admin/AdminOrdersPage/AdminOrdersPage';
+import AdminUsersPage from '../pages/admin/AdminUsersPage/AdminUsersPage';
 
 export default function AppRoutes() {
     return (
@@ -25,6 +29,10 @@ export default function AppRoutes() {
             <Route path='/our-story' element={<OurStoryPage />} />
             <Route path='/orders' element={<OrdersPage />} />
             <Route path='/orders/:orderId' element={<OrderDetailPage />} />
+            <Route path='/admin' element={<AdminOverviewPage />} />
+            <Route path='/admin/products' element={<AdminProductsPage />} />
+            <Route path='/admin/orders' element={<AdminOrdersPage />} />
+            <Route path='/admin/users' element={<AdminUsersPage />} />
         </Routes>
     );
 }

@@ -146,6 +146,17 @@ export default function Navbar() {
                                     >
                                         My Orders
                                     </Link>
+                                    {user.role === 'ADMIN' && (
+                                        <Link
+                                            to='/admin'
+                                            className='flex items-center gap-2 w-full px-4 py-3 text-left text-sm text-black hover:bg-zinc-50 dark:text-white dark:hover:bg-zinc-800 transition'
+                                        >
+                                            <span className='text-[9px] font-black tracking-widest bg-black text-white dark:bg-white dark:text-black px-1.5 py-0.5 rounded'>
+                                                ADMIN
+                                            </span>
+                                            Dashboard
+                                        </Link>
+                                    )}
                                     <button
                                         onClick={logout}
                                         className='w-full px-4 py-3 text-left text-sm text-black hover:bg-red-500 hover:text-white dark:text-white rounded-b-xl transition'
