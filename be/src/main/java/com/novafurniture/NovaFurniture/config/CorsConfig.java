@@ -19,7 +19,7 @@ public class CorsConfig {
                 "http://localhost:5173",   // Vite frontend
                 "http://localhost:8080"    // Swagger UI
         ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE","PATCH","OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 
