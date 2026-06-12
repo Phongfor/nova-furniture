@@ -24,13 +24,14 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Slf4j
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    UserRepository userRepository;
-    JwtUtil jwtUtil;
-    RedisService redisService;
+    final UserRepository userRepository;
+    final JwtUtil jwtUtil;
+    final RedisService redisService;
+
 
     @Value("${app.frontend-url}")  // thêm dòng này
     String frontendUrl;
