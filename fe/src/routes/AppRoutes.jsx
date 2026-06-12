@@ -14,6 +14,7 @@ import AdminOverviewPage from '../pages/admin/AdminOverviewPage';
 import AdminProductsPage from '../pages/admin/AdminProductsPage/AdminProductsPage';
 import AdminOrdersPage from '../pages/admin/AdminOrdersPage/AdminOrdersPage';
 import AdminUsersPage from '../pages/admin/AdminUsersPage/AdminUsersPage';
+import OAuth2Callback from '../pages/client/OAuth2Callback/OAuth2Callback';
 
 export default function AppRoutes() {
     return (
@@ -33,6 +34,7 @@ export default function AppRoutes() {
             <Route path='/admin/products' element={<AdminProductsPage />} />
             <Route path='/admin/orders' element={<AdminOrdersPage />} />
             <Route path='/admin/users' element={<AdminUsersPage />} />
+            <Route path="/oauth2/callback" element={<OAuth2Callback />} />
         </Routes>
     );
 }

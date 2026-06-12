@@ -1,4 +1,4 @@
-package com.novafurniture.NovaFurniture.security;
+package com.novafurniture.NovaFurniture.config;
 
 import com.novafurniture.NovaFurniture.entity.User;
 import com.novafurniture.NovaFurniture.enums.Role;
@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -30,6 +31,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     UserRepository userRepository;
     JwtUtil jwtUtil;
     RedisService redisService;
+
+    @Value("${app.frontend-url}")  // thêm dòng này
+    String frontendUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -73,6 +77,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         log.info("OAuth2 one-time code created for: {}", email);
 
         // Redirect về frontend kèm code (không phải token)
-        response.sendRedirect("http://localhost:3000/oauth2/callback?code=" + code);
+        response.sendRedirect(frontendUrl + "/oauth2/callback?code=" + code);
     }
 }
