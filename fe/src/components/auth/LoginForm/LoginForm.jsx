@@ -15,6 +15,10 @@ export default function LoginForm() {
         formState: { errors, isSubmitting }
     } = useForm();
 
+    const handleGoogleLogin = () => {
+        window.location.href = `${import.meta.env.VITE_API_URL}/oauth2/authorization/google`;
+    };
+
     const onSubmit = async (data) => {
         try {
             const response = await loginApi(data);
@@ -26,7 +30,7 @@ export default function LoginForm() {
             const refreshToken = response.data.result.refreshToken;
 
             login(accessToken);
-          
+
             localStorage.setItem('refreshToken', refreshToken);
 
             alert('Login success');
@@ -103,6 +107,7 @@ export default function LoginForm() {
                 {/* Google */}
                 <button
                     type='button'
+                    onClick={handleGoogleLogin}
                     className='w-full border border-zinc-300 py-4 rounded-full flex items-center justify-center gap-3 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition'
                 >
                     <FcGoogle size={22} />
