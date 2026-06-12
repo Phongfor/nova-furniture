@@ -1,6 +1,6 @@
 package com.novafurniture.NovaFurniture.config;
 
-import com.novafurniture.NovaFurniture.security.OAuth2SuccessHandler;
+import com.novafurniture.NovaFurniture.config.OAuth2SuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
