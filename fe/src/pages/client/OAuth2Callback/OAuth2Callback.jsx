@@ -9,13 +9,16 @@ const OAuth2Callback = () => {
  useEffect(() => {
     const code = new URLSearchParams(window.location.search).get('code')
     if (code) {
-      axiosClient.post(`/auth/oauth2/token`, { code })  // body, không phải query param
-        .then(res => {
-          localStorage.setItem('accessToken', res.data.result.accessToken)   // thêm .result
-          localStorage.setItem('refreshToken', res.data.result.refreshToken) // thêm .result
-          navigate('/')
-        })
-        .catch(() => navigate('/auth'))
+      axiosClient.post(`/auth/oauth2/token`, { code })
+  .then(res => {
+    const { accessToken, refreshToken } = res.data.result
+    
+    localStorage.setItem('token', accessToken)        // đổi thành 'token'
+    localStorage.setItem('refreshToken', refreshToken)
+    
+    window.location.href = '/'  
+  })
+  .catch(() => navigate('/auth'))
     } else {
       navigate('/auth')
     }
